@@ -93,7 +93,7 @@ impl MonitorBuilder {
                     if line.contains(name_str) {
                         if let Some(s) = line.split(name_str).nth(1) {
                             model = Some(s.to_string());
-                            break
+                            break;
                         }
                     } else if line.contains(ascii_str) {
                         if let Some(s) = line.split(ascii_str).nth(1) {
@@ -103,11 +103,23 @@ impl MonitorBuilder {
                 }
             }
             if model.is_some() {
-                return Some(model.unwrap().to_string())
+                return Some(model.unwrap().to_string());
             }
 
             if ascii_text.len() > 0 {
-                return Some(ascii_text[0].to_string());
+                //return Some(ascii_text[0].to_string());
+                /*
+                    let mut pfx = ascii_text[0].to_string();
+                    let sfx = ascii_text.split_at(1).1.join(" ");
+                    if sfx.len() > 0 {
+                        pfx.push_str(" (");
+                        pfx.push_str(&sfx);
+                        pfx.push(')');
+                    }
+                */
+                ascii_text.sort();
+                ascii_text.dedup();
+                return Some(ascii_text.join(" "));
             }
         }
         None

@@ -26,13 +26,38 @@ fn main() {
         .filter_map(|s| Layout::new(s).ok())
         .filter_map(|layout| match mon_map.remove(&layout.mon_idx) {
             Some(mon) => Some(MonitorLayoutPair::new(mon, layout)),
-            None => None,
+            None => {
+                println!("monitor with index: {} not found", layout.mon_idx);
+                None
+            }
         })
         .collect();
 
+    if !mon_map.is_empty() {
+        for v in mon_map.values() {
+            println!(
+                "configuration for monitor [{}. {}] not found",
+                v.idx, v.name
+            );
+        }
+        process::exit(1)
+    }
+
     if pairs.len() == 0 {
         println!("no valid arguments provided for current monitor setup");
-        process::exit(1)
+        process::exit(2)
+    }
+
+    if pairs
+        .iter()
+        .find_map(|p| match p.1.on {
+            true => Some(true),
+            false => None,
+        })
+        .is_none()
+    {
+        println!("blackout mode not supported");
+        process::exit(3)
     }
 
     output::set_screen_output(&pairs)

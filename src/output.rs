@@ -2,7 +2,7 @@ use crate::layout::{Layout, Rotation};
 use crate::monitors::Monitor;
 use std::process::Command;
 
-pub struct MonitorLayoutPair(Monitor, Layout);
+pub struct MonitorLayoutPair(pub Monitor, pub Layout);
 
 impl MonitorLayoutPair {
     pub fn new(mon: Monitor, layout: Layout) -> Self {
