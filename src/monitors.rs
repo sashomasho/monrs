@@ -19,8 +19,12 @@ impl fmt::Display for Monitor {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> Result<(), fmt::Error> {
         write!(
             f,
-            "{}. {} ({}x{}) on {}",
-            self.idx, self.name, self.width, self.height, self.link
+            "{idx}. {name} ({width}x{height}) on {link}",
+            idx = self.idx,
+            name = self.name,
+            width = self.width,
+            height = self.height,
+            link = self.link
         )
     }
 }
@@ -72,57 +76,63 @@ impl MonitorBuilder {
     }
 
     fn model(&self) -> Option<String> {
-        if let Ok(mut p) = Command::new("edid-decode")
+        match Command::new("edid-decode")
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .spawn()
         {
-            p.stdin
-                .as_mut()
-                .unwrap()
-                .write_all(self.edid.as_bytes())
-                .unwrap();
+            Err(e) => {
+                println!("error executing command 'edid-decode': {}", e.to_string());
+                None
+            }
+            Ok(mut p) => {
+                p.stdin
+                    .as_mut()
+                    .unwrap()
+                    .write_all(self.edid.as_bytes())
+                    .unwrap();
 
-            let mut model: Option<String> = None;
-            let mut ascii_text: Vec<String> = vec![];
+                let mut model: Option<String> = None;
+                let mut ascii_text: Vec<String> = vec![];
 
-            let name_str = "Monitor name: ";
-            let ascii_str = "ASCII string: ";
-            if let Ok(out) = p.wait_with_output() {
-                for line in String::from_utf8(out.stdout).unwrap().lines() {
-                    if line.contains(name_str) {
-                        if let Some(s) = line.split(name_str).nth(1) {
-                            model = Some(s.to_string());
-                            break;
-                        }
-                    } else if line.contains(ascii_str) {
-                        if let Some(s) = line.split(ascii_str).nth(1) {
-                            ascii_text.push(s.to_string());
+                let name_str = "Monitor name: ";
+                let ascii_str = "ASCII string: ";
+                if let Ok(out) = p.wait_with_output() {
+                    for line in String::from_utf8(out.stdout).unwrap().lines() {
+                        if line.contains(name_str) {
+                            if let Some(s) = line.split(name_str).nth(1) {
+                                model = Some(s.to_string());
+                                break;
+                            }
+                        } else if line.contains(ascii_str) {
+                            if let Some(s) = line.split(ascii_str).nth(1) {
+                                ascii_text.push(s.to_string());
+                            }
                         }
                     }
                 }
-            }
-            if model.is_some() {
-                return Some(model.unwrap().to_string());
-            }
+                if model.is_some() {
+                    return Some(model.unwrap().to_string());
+                }
 
-            if ascii_text.len() > 0 {
-                //return Some(ascii_text[0].to_string());
-                /*
-                    let mut pfx = ascii_text[0].to_string();
-                    let sfx = ascii_text.split_at(1).1.join(" ");
-                    if sfx.len() > 0 {
-                        pfx.push_str(" (");
-                        pfx.push_str(&sfx);
-                        pfx.push(')');
-                    }
-                */
-                ascii_text.sort();
-                ascii_text.dedup();
-                return Some(ascii_text.join(" "));
+                if ascii_text.len() > 0 {
+                    //return Some(ascii_text[0].to_string());
+                    /*
+                        let mut pfx = ascii_text[0].to_string();
+                        let sfx = ascii_text.split_at(1).1.join(" ");
+                        if sfx.len() > 0 {
+                            pfx.push_str(" (");
+                            pfx.push_str(&sfx);
+                            pfx.push(')');
+                        }
+                    */
+                    ascii_text.sort();
+                    ascii_text.dedup();
+                    return Some(ascii_text.join(" "));
+                }
+                Some("unknown".to_string())
             }
         }
-        None
     }
 }
 
@@ -131,7 +141,7 @@ pub fn probe_all() -> Vec<Monitor> {
         .arg("--props")
         .output()
         .ok()
-        .expect("failed to execute");
+        .expect("failed to execute, is xrandr available?");
     let s = String::from_utf8(output.stdout).expect("error processing output");
 
     lazy_static! {
@@ -183,7 +193,7 @@ pub fn probe_all() -> Vec<Monitor> {
     if let Some(mon) = builder.build() {
         mons.push(mon);
     }
-    println!("{:?}", mons);
+    // println!("{:?}", mons);
     mons
 }
 
