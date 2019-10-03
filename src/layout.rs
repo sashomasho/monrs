@@ -54,10 +54,10 @@ impl Layout {
         let rotation_deg = *split.get(1).or_else(|| Some(&"N")).unwrap();
 
         let rotation = match rotation_deg {
-            "n" | "N" | "0" => Rotation::Normal,
             "r" | "R" | "90" => Rotation::Right,
             "i" | "I" | "180" => Rotation::Inverted,
             "l" | "L" | "270" => Rotation::Left,
+            "" | "n" | "N" | "0" => Rotation::Normal,
             _ => return Err(InvalidOptionError(format!("rotation '{}'", rotation_deg)))
         };
 
@@ -85,16 +85,16 @@ impl Layout {
 fn test_new() {
     let test_valid_strings = vec![
         "1",
-        "1:",
+        "1",
         "1:90",
-        "1:99",
-        "1:99:",
+        "1:N",
+        "1:R:",
         "1::10",
-        "1::10:",
+        "1::10",
         "1:::10",
-        "1:::10:",
-        "1::::0",
-        "1:0:100:0:1",
+        "1:L::10",
+        "1:::",
+        "1:I:100:0",
     ];
 
     for s in test_valid_strings {
