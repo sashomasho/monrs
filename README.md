@@ -8,7 +8,7 @@ The problem I had which brought me to this tool is that I often put my laptop on
 As a result I can't use a simple bash without putting some complex logic in it, and frankly I'm not big fan of bash when
 I have to deal with a lot of arguments.
 
-###How it works
+### How it works
 
 * Executed with no parameters it will only print the attached monitors
 ```
@@ -31,7 +31,7 @@ the HP on center with slight Y offset of 300 px, and the laptop one on the right
 % monrs 1:270 2::300 0
 ```
 
-###Arguments
+### Arguments
 
 one of **idx**:***rot***:***x***:***y***:***on*** per each monitor, where
 
@@ -53,7 +53,7 @@ If there isn't an argument for a monitor then that monitor will be turned off.
 monrs 0
 ```
 
-###Requirements
+### Requirements
 You need **xrandr** and **edid-decode** and rust compiler
 
 ###Installation
