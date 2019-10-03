@@ -21,11 +21,14 @@ Connected monitors:
 1. DELL P2317H (1920x1080) on DisplayPort-2
 2. HP LP2475w (1920x1200) on DisplayPort-3
 
+
 ```
+
 Let's say we need to position the DELL monitor on the left, rotated by 270 degrees,
 the HP on center with slight Y offset of 300 px, and the laptop one on the right
- 
-    1080      
+
+```
+    1080
   +------+      1920            1920
 1 |      +---------------+---------------+  1
 9 | DELL |      HP       |    LAPTOP     |  0
@@ -34,9 +37,9 @@ the HP on center with slight Y offset of 300 px, and the laptop one on the right
   |      +---------------+
   +------+
 
-```
 % monrs 1:270 2::300 0
 ```
+
 
 ### Arguments
 
@@ -52,7 +55,7 @@ one of **idx**:***rotation***:***x***:***y***:***on*** per each monitor, where
 
 * **on** - optional, 1 by default, 0 to turn of the monitor 
 
-In the example above the full arguments will be:
+In the example above the full arguments, without using defaults will be:
 ```
 monrs 2:270:0:0:1  1:0:1080:300:1  0:0:3000:300:1
 ```
