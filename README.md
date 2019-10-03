@@ -57,14 +57,14 @@ one of **idx**:***rotation***:***x***:***y***:***on*** per each monitor, where
 
 In the example above the full arguments, without using defaults will be:
 ```
-monrs 2:270:0:0:1  1:0:1080:300:1  0:0:3000:300:1
+% monrs 2:270:0:0:1  1:0:1080:300:1  0:0:3000:300:1
 ```
 
 If there isn't an argument for a monitor then that monitor will be turned off.
 
 ```
 # For example to turn only the laptop display ON and to turn OFF all others:
-monrs 0
+% monrs 0
 ```
 
 ### Requirements
