@@ -63,7 +63,7 @@ In the example above the full arguments, without using defaults will be:
 If there isn't an argument for a monitor then that monitor will be turned off.
 
 ```
-# For example to turn only the laptop display ON and to turn OFF all others:
+# For example to switch from dual monitor setup to single display, effectively turning all others OFF:
 % monrs 0
 ```
 
