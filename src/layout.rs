@@ -13,7 +13,6 @@ pub struct Layout {
     pub mon_idx: i32,
     pub rotation: Rotation,
     pub position: (Option<i32>, Option<i32>),
-    pub on: bool,
 }
 
 #[derive(Clone, Debug)]
@@ -46,7 +45,7 @@ type Result<T> = std::result::Result<T, InvalidOptionError>;
 impl Layout {
     pub fn new(opt: &str) -> Result<Self> {
         let split: Vec<&str> = opt.split(":").collect();
-        if split.len() > 5 {
+        if split.len() > 4 {
             return Err(InvalidOptionError(format!("too many ':' in '{}', ignoring", opt)));
         }
 
@@ -63,13 +62,11 @@ impl Layout {
 
         let pos_x = Self::parse_split(&split, 2)?;
         let pos_y = Self::parse_split(&split, 3)?;
-        let on = Self::parse_split(&split, 4)?.unwrap_or(1);
 
         return Ok(Layout {
             mon_idx,
             rotation,
             position: (pos_x, pos_y),
-            on: on > 0,
         });
     }
 

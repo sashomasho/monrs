@@ -91,7 +91,6 @@ fn test_args() {
                 mon_idx: 1,
                 position: (None, None),
                 rotation: Rotation::Left,
-                on: true,
             }),
         ),
         MonitorLayoutPair(
@@ -106,7 +105,6 @@ fn test_args() {
                 mon_idx: 1,
                 position: (Some(1080), Some(230)),
                 rotation: Rotation::Normal,
-                on: true,
             }),
         ),
     ];

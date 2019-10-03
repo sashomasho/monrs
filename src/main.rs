@@ -68,31 +68,13 @@ fn main() {
         pairs.push(MonitorLayoutPair { 0: mon, 1: None })
     }
 
-    if pairs
-        .iter()
-        .find_map(|p| match &p.1 {
-            Some(layout) => {
-                if layout.on {
-                    Some(true)
-                } else {
-                    None
-                }
-            }
-            _ => None,
-        })
-        .is_none()
-    {
-        println!("\nError: refusing to turn all monitors off");
-        process::exit(3)
-    }
-
     output::set_screen_output(&pairs)
 }
 
 fn long_help() {
     println!("
 Usage:
- {prog} monitor-idx:<rotation>:<x>:<y>:<on> ...
+ {prog} monitor-idx:<rotation>:<x>:<y> ...
 
 Where:
     * monitor-idx as printed by the program, mandatory
@@ -101,7 +83,6 @@ Where:
      left standing one or 0 if first)
     * y - position Y of the monitor, absolute px (default: same as the value to the left
       stating one or 0 if first)
-    * on - 1 or 0 (default: 1)
 
 
 Sample for 3 monitors:
@@ -116,14 +97,14 @@ There are 3 arguments one for each monitors. The missing values (those between t
  colons are automatically field according the description above, resulting to:
 
 * 1::270 - the left monitor is the one with idx 1 and is rotated by 270 degrees, all other
- settings are set to default, which is effectively the same as 1:270:0:0:1
+ settings are set to default, which is effectively the same as 1:270:0:0
 
 * 2:::300 - the second monitor is the one with idx 2, it will be positioned to right of 1,
- and with Y offset set to 300, which is effectively the same as 1:0:1080:300:1
+ and with Y offset set to 300, which is effectively the same as 1:0:1080:300
 
 * 0 - the third monitor with idx 0 will be positioned to the right of 2 with X offset
  equal to the width of the previous two monitors, and Y offset which is effectively the
- same as 1:0:3000:300:1
+ same as 1:0:3000:300
 
 Note: If no argument is provided for a monitor, it will be turned off
 ", prog=env::args().into_iter().nth(0).unwrap());
@@ -132,7 +113,7 @@ Note: If no argument is provided for a monitor, it will be turned off
 fn short_help() {
     println!("
 Usage:
- {prog} monitor-idx:<rotation>:<x>:<y>:<on> ...
+ {prog} monitor-idx:<rotation>:<x>:<y> ...
 
 Options:
  --help for more detailed information", prog=env::args().into_iter().nth(0).unwrap())
