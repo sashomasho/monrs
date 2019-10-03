@@ -68,7 +68,7 @@ If there isn't an argument for a monitor then that monitor will be turned off.
 ```
 
 ### Requirements
-You need **xrandr edid-decode** and rust compiler to build.
+You need **xrandr, edid-decode** and rust compiler to build.
 
 ### Installation
 Execute the following from the source directory
