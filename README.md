@@ -3,8 +3,8 @@ Small tool to configure current monitor layout under linux
 
 This tool can be written easily in bash, but since I've just started learning rust I decided to give it a go.
 
-The problem I had which brought me to this tool is that I often put my laptop on and off the dock and the monitors ports
-(e.g DisplayPort-3) are renumbered, so my main monitor is attached to DisplayPort-4, secondary to DisplayPort-6.
+The problem I had which brought me to this tool is that I often put my laptop on and off the dock and the monitor ports
+(e.g DisplayPort-3) are reenumerated, so my main monitor is attached to DisplayPort-4 instead of 3, secondary to DisplayPort-6 instead of 5.
 As a result I can't use a simple bash without putting some complex logic in it, and frankly I'm not big fan of bash when
 I have to deal with a lot of arguments.
 
