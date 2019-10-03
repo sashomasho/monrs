@@ -10,7 +10,7 @@ I have to deal with a lot of arguments.
 
 ### How it works
 
-* Executed with no parameters it will only print the attached monitors
+Executed with no parameters it will only print the attached monitors
 ```
 
 % monrs 
@@ -33,11 +33,11 @@ the HP on center with slight Y offset of 300 px, and the laptop one on the right
 
 ### Arguments
 
-one of **idx**:***rot***:***x***:***y***:***on*** per each monitor, where
+one of **idx**:***rotation***:***x***:***y***:***on*** per each monitor, where
 
 * **idx** monitor index as printed from the tool itself when no arguments are provided
 
-* **rot** - optional, 0, 90, 180, 270, 0 by default
+* **rotation** - optional, 0, 90, 180, 270, 0 by default
 
 * **x** - optional, X position of the monitor relative to the left one, or 0 if it's first
 
