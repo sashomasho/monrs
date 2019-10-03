@@ -12,7 +12,6 @@ I have to deal with a lot of arguments.
 
 Executed with no parameters it will only print the attached monitors
 ```
-
 % monrs 
 
 Connected monitors:
@@ -22,8 +21,6 @@ Connected monitors:
 
 Error: No valid arguments provided for current monitor setup
 ```
-
-
 Let's say we need to position the DELL monitor on the left, rotated by 270 degrees,
 the HP on center with slight Y offset of 300 px, and the laptop one on the right
 
