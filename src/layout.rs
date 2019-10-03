@@ -47,10 +47,10 @@ impl Layout {
     pub fn new(opt: &str) -> Result<Self> {
         let split: Vec<&str> = opt.split(":").collect();
         if split.len() > 5 {
-            return Err(InvalidOptionError(String::from(opt)));
+            return Err(InvalidOptionError(format!("too many ':' in '{}', ignoring", opt)));
         }
 
-        let idx = Self::parse_split(&split, 0)?.unwrap_or(-1);
+        let mon_idx = Self::parse_split(&split, 0)?.unwrap_or(-1);
 
         let rotation_deg = Self::parse_split(&split, 1)?.unwrap_or(0);
 
@@ -66,7 +66,7 @@ impl Layout {
         let on = Self::parse_split(&split, 4)?.unwrap_or(1);
 
         return Ok(Layout {
-            mon_idx: idx,
+            mon_idx,
             rotation,
             position: (pos_x, pos_y),
             on: on > 0,

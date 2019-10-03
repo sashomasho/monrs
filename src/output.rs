@@ -1,11 +1,12 @@
-use crate::layout::{Layout, Rotation};
-use crate::monitors::Monitor;
 use std::process::Command;
 
-pub struct MonitorLayoutPair(pub Monitor, pub Layout);
+use crate::layout::{Layout, Rotation};
+use crate::monitors::Monitor;
+
+pub struct MonitorLayoutPair(pub Monitor, pub Option<Layout>);
 
 impl MonitorLayoutPair {
-    pub fn new(mon: Monitor, layout: Layout) -> Self {
+    pub fn new(mon: Monitor, layout: Option<Layout>) -> Self {
         MonitorLayoutPair(mon, layout)
     }
 }
@@ -42,31 +43,33 @@ pub fn build_args(pairs: &Vec<MonitorLayoutPair>) -> Vec<String> {
     for p in pairs {
         args.push("--output".to_string());
         args.push(p.0.link.to_string());
-        args.push("--rotation".to_string());
-        args.push(
-            match p.1.rotation {
-                Rotation::Normal => "normal",
-                Rotation::Left => "left",
-                Rotation::Right => "right",
-                Rotation::Inverted => "inverted",
-            }
-            .to_string(),
-        );
+        if let Some(layout) = &p.1 {
+            args.push("--rotation".to_string());
+            args.push(
+                match layout.rotation {
+                    Rotation::Normal => "normal",
+                    Rotation::Left => "left",
+                    Rotation::Right => "right",
+                    Rotation::Inverted => "inverted",
+                }
+                    .to_string(),
+            );
+            args.push("--pos".to_string());
+            args.push(format!(
+                "{}x{}",
+                layout.position.0.unwrap_or(current_pos_x),
+                layout.position.1.unwrap_or(0)
+            ));
 
-        args.push("--pos".to_string());
-        args.push(format!(
-            "{}x{}",
-            p.1.position.0.unwrap_or(current_pos_x),
-            p.1.position.1.unwrap_or(0)
-        ));
-        current_pos_x += p.0.width;
-
-        args.push("--mode".to_string());
-        args.push(format!("{}x{}", p.0.width, p.0.height));
-        current_pos_x += match p.1.rotation {
-            Rotation::Normal | Rotation::Inverted => p.0.width,
-            Rotation::Left | Rotation::Right => p.0.height,
-        };
+            args.push("--mode".to_string());
+            args.push(format!("{}x{}", p.0.width, p.0.height));
+            current_pos_x += match layout.rotation {
+                Rotation::Normal | Rotation::Inverted => p.0.width,
+                Rotation::Left | Rotation::Right => p.0.height,
+            };
+        } else {
+            args.push("--off".to_string());
+        }
     }
     return args;
 }
@@ -82,12 +85,12 @@ fn test_args() {
                 height: 1200,
                 name: "hp".to_string(),
             },
-            Layout {
-                mon_idx: 0,
+            Some(Layout {
+                mon_idx: 1,
                 position: (None, None),
                 rotation: Rotation::Left,
                 on: true,
-            },
+            }),
         ),
         MonitorLayoutPair(
             Monitor {
@@ -97,12 +100,12 @@ fn test_args() {
                 height: 1080,
                 name: "dell".to_string(),
             },
-            Layout {
+            Some(Layout {
                 mon_idx: 1,
                 position: (Some(1080), Some(230)),
                 rotation: Rotation::Normal,
                 on: true,
-            },
+            }),
         ),
     ];
 
