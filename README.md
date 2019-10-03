@@ -1,16 +1,13 @@
 # monrs
-Small tool to configure current monitor layout under linux
+Small tool to easily configure multi monitor layout under linux running X.
 
-This tool can be written in bash (and maybe some has done it already), but since I've just started learning rust I decided to give it a go.
+This tool can be written in bash (and maybe someone has done it already?), but since I've just started learning rust I decided to give it a go.
 
-The problem I had which brought me to this tool is that I often place my laptop on and off the dock, the monitor ports
-(e.g DisplayPort-3) are re-enumerated and I had to manually readjust my multi monitor setup using **arandr**.
-As a result I can't use a simple bash without putting some complex logic in it, and frankly I'm not big fan of bash when
-I have to deal with a lot of arguments.
+The problem I had which pushed me to write this tool is that I often attacha and detach my laptop to/from its dock, and as a result the monitor ports (e.g DisplayPort-3) are re-enumerated and I had to manually reposition all of my monitors  using **arandr**. As a result I can't use a simple bash without putting some complex logic in it, and frankly I'm not big fan of bash when I have to deal with a lot of arguments. Another one of my use cases is that sometimes when I'm using multi monitors I decide to turn off my laptop monitor since I don't use it that much and I need an easy way to do that from the cli.
 
 monrs works not with ports, but with monitors and position them by reading command line arguments, each of which descibes how the monitor should be placed relative to the others.
 
-### How it run
+### How to run
 
 Executed with no parameters it will only print the attached monitors
 ```
