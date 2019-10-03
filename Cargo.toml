@@ -1,5 +1,5 @@
 [package]
-name = "mons"
+name = "monrs"
 version = "0.1.0"
 authors = ["Alex Yosifov <sashomasho@gmail.com>"]
 edition = "2018"
