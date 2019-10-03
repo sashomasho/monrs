@@ -19,7 +19,6 @@ Connected monitors:
 1. DELL P2317H (1920x1080) on DisplayPort-2
 2. HP LP2475w (1920x1200) on DisplayPort-3
 
-Error: No valid arguments provided for current monitor setup
 ```
 Let's say we need to position the DELL monitor on the left, rotated by 270 degrees,
 the HP on center with slight Y offset of 300 px, and the laptop one on the right
