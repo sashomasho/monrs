@@ -4,7 +4,7 @@ Small tool to configure current monitor layout under linux
 This tool can be written easily in bash, but since I've just started learning rust I decided to give it a go.
 
 The problem I had which brought me to this tool is that I often put my laptop on and off the dock and the monitor ports
-(e.g DisplayPort-3) are reenumerated, so my main monitor is attached to DisplayPort-4 instead of 3, secondary to DisplayPort-6 instead of 5.
+(e.g DisplayPort-3) are re-enumerated, so my main monitor is attached to DisplayPort-4 instead of 3, secondary to DisplayPort-6 instead of 5.
 As a result I can't use a simple bash without putting some complex logic in it, and frankly I'm not big fan of bash when
 I have to deal with a lot of arguments.
 
@@ -35,9 +35,9 @@ one of **idx**:***rotation***:***x***:***y***:***on*** per each monitor, where
 
 * **rotation** - optional, 0, 90, 180, 270, 0 by default
 
-* **x** - optional, X position of the monitor relative to the left one, or 0 if it's first
+* **x** - optional, X position of the monitor, absolute if provided, relative to the width left stating one if omitted
 
-* **y** - optional, Y position of the monitor, absolute, 0 by default
+* **y** - optional, Y position of the monitor, absolute if provided, same as the offset of the left stating one if omitted
 
 * **on** - optional, 1 by default, 0 to turn of the monitor 
 
