@@ -16,7 +16,7 @@ Executed with no parameters it will only print the attached monitors
 ```
 % monrs 
 
-Connected monitors:
+Attached monitors:
 0. CMN N140HCG-GQ2 (1920x1080) on eDP
 1. DELL P2317H (1920x1080) on DisplayPort-2
 2. HP LP2475w (1920x1200) on DisplayPort-3
