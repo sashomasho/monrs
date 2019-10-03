@@ -30,7 +30,7 @@ impl error::Error for InvalidOptionError {
 
 impl fmt::Display for InvalidOptionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Invalid option: {}", self.0)
+        write!(f, "Invalid option <{}>", self.0)
     }
 }
 
@@ -51,13 +51,14 @@ impl Layout {
 
         let mon_idx = Self::parse_split(&split, 0)?.unwrap_or(-1);
 
-        let rotation_deg = Self::parse_split(&split, 1)?.unwrap_or(0);
+        let rotation_deg = *split.get(1).or_else(|| Some(&"N")).unwrap();
 
         let rotation = match rotation_deg {
-            90 => Rotation::Right,
-            180 => Rotation::Inverted,
-            270 => Rotation::Left,
-            _ => Rotation::Normal,
+            "n" | "N" | "0" => Rotation::Normal,
+            "r" | "R" | "90" => Rotation::Right,
+            "i" | "I" | "180" => Rotation::Inverted,
+            "l" | "L" | "270" => Rotation::Left,
+            _ => return Err(InvalidOptionError(format!("rotation '{}'", rotation_deg)))
         };
 
         let pos_x = Self::parse_split(&split, 2)?;

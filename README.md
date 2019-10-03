@@ -44,7 +44,7 @@ one of **idx**:***rotation***:***x***:***y*** per each monitor, where
 
 * **idx** monitor index as printed from the tool itself when no arguments are provided
 
-* **rotation** - optional, 0, 90, 180, 270, 0 by default
+* **rotation** - optional, *N* (normal), *R* (right), *I* (inverted), *L* (left) (default: N)
 
 * **x** - optional, X position of the monitor, absolute if provided, placed on the right side of the left standing one if omitted or 0 if there is None
 
