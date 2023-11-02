@@ -1,11 +1,8 @@
-#[macro_use]
-extern crate lazy_static;
-extern crate regex;
-
 use std::collections::HashMap;
 use std::{env, process};
 
 use layout::Layout;
+use log::debug;
 
 use crate::output::MonitorLayoutPair;
 
@@ -14,6 +11,9 @@ mod monitors;
 mod output;
 
 fn main() {
+    env_logger::init();
+    debug!("Starting");
+
     let mons = monitors::probe_all();
     let mut mon_map = HashMap::new();
 
@@ -42,14 +42,14 @@ fn main() {
         .filter_map(|s| match Layout::new(s) {
             Ok(layout) => Some(layout),
             Err(e) => {
-                println!("\nWarning: {}", e);
+                eprintln!("\nWarning: {}", e);
                 None
             }
         })
         .filter_map(|layout| match mon_map.remove(&layout.mon_idx) {
             Some(mon) => Some(MonitorLayoutPair::new(mon, Some(layout))),
             None => {
-                println!(
+                eprintln!(
                     "\nWarning: Monitor with index: {} not found",
                     layout.mon_idx
                 );
@@ -58,23 +58,39 @@ fn main() {
         })
         .collect();
 
-    if pairs.len() == 0 {
+    let primary_count = pairs.iter().fold(0, |acc, p| {
+        acc + p
+            .layout
+            .as_ref()
+            .map(|layout| layout.primary as u8)
+            .unwrap_or_default()
+    });
+
+    if primary_count > 1 {
+        eprintln!("\nError: More than one primary monitor provided");
+        process::exit(1)
+    }
+
+    debug!("{:?}", pairs);
+
+    if pairs.is_empty() {
         println!("\nError: No valid arguments provided for current monitor setup");
         process::exit(2)
     }
 
     //the rest which don't have a matching layout
     for (_, mon) in mon_map {
-        pairs.push(MonitorLayoutPair { 0: mon, 1: None })
+        pairs.push(MonitorLayoutPair::new(mon, None))
     }
 
     output::set_screen_output(&pairs)
 }
 
 fn long_help() {
-    println!("
+    println!(
+        "
 Usage:
- {prog} monitor-idx:<rotation>:<x>:<y> ...
+ {prog} monitor-idx<rotation><xPOSX><yPOSY><p><f>
 
 Where:
     * monitor-idx as printed by the program, mandatory
@@ -84,6 +100,9 @@ Where:
      left standing one or 0 if first)
     * y - position Y of the monitor, absolute px (default: same as the value to the left
       stating one or 0 if first)
+    * p - set monitor as primary
+    * f - force monitor to be turned off and then turned on, useful if monitor is not turned on
+      automatically after being reattached
 
 
 Sample for 3 monitors:
@@ -92,30 +111,35 @@ Sample for 3 monitors:
  2. Monitor Two (1920x1200)
 
 Execute:
- {prog} 1:L 2:::300 0
+ {prog} 1L 2x300 0
 
 There are 3 arguments one for each monitors. The missing values (those between the empty
  colons are automatically field according the description above, resulting to:
 
-* 1:L - the left monitor is the one with idx 1 and is rotated by 270 degrees, all other
- settings are set to default, which is effectively the same as 1:L:0:0
+* 1L - the left monitor is the one with idx 1 and is rotated by 270 degrees, all other
+ settings are set to default, which is effectively the same as 1Lx0y0
 
-* 2:::300 - the second monitor is the one with idx 2, it will be positioned to right of 1,
- and with Y offset set to 300, which is effectively the same as 1:N:1080:300
+* 2y300 - the second monitor is the one with idx 2, it will be positioned to right of 1,
+ and with Y offset set to 300, which is effectively the same as 1Nx1080y300
 
 * 0 - the third monitor with idx 0 will be positioned to the right of 2 with X offset
  equal to the width of the previous two monitors, and Y offset which is effectively the
- same as 1:N:3000:300
+ same as 0Nx3000y300
 
 Note: If no argument is provided for a monitor, it will be turned off
-", prog=env::args().into_iter().nth(0).unwrap());
+",
+        prog = env::args().next().unwrap()
+    );
 }
 
 fn short_help() {
-    println!("
+    println!(
+        "
 Usage:
- {prog} monitor-idx:<rotation>:<x>:<y> ...
+ {prog} monitor-idx<rotation><x><y><f><p>
 
 Options:
- --help for more detailed information", prog=env::args().into_iter().nth(0).unwrap())
+ --help for more detailed information",
+        prog = env::args().next().unwrap()
+    )
 }

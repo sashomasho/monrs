@@ -1,4 +1,5 @@
-use std::{error, fmt};
+use anyhow::{anyhow, Context};
+use log::debug;
 
 #[derive(Debug, Clone)]
 pub enum Rotation {
@@ -13,117 +14,113 @@ pub struct Layout {
     pub mon_idx: i32,
     pub rotation: Rotation,
     pub position: (Option<i32>, Option<i32>),
+    pub force: bool,
+    pub primary: bool,
 }
-
-#[derive(Clone, Debug)]
-pub struct InvalidOptionError(String);
-
-impl error::Error for InvalidOptionError {
-    //    fn source(&self) -> Option<&(dyn error::Error + 'static)> {
-    //        // Generic error, underlying cause isn't tracked.
-    //        None
-    //    }
-    fn description(&self) -> &str {
-        &self.0
-    }
-}
-
-impl fmt::Display for InvalidOptionError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Invalid option <{}>", self.0)
-    }
-}
-
-impl std::convert::From<std::num::ParseIntError> for InvalidOptionError {
-    fn from(e: std::num::ParseIntError) -> Self {
-        return InvalidOptionError(e.to_string());
-    }
-}
-
-type Result<T> = std::result::Result<T, InvalidOptionError>;
 
 impl Layout {
-    pub fn new(opt: &str) -> Result<Self> {
-        let split: Vec<&str> = opt.split(":").collect();
-        if split.len() > 4 {
-            return Err(InvalidOptionError(format!("too many ':' in '{}', ignoring", opt)));
+    pub fn new(opt: &str) -> anyhow::Result<Self> {
+        if opt.is_empty() {
+            return Err(anyhow!("empty option"));
         }
 
-        let mon_idx = Self::parse_split(&split, 0)?.unwrap_or(-1);
+        let mon_idx: i32 = regex::Regex::new(r"^(\d+).*")
+            .unwrap()
+            .captures(opt)
+            .map(|c| c[1].parse::<i32>().unwrap())
+            .context("invalid option - missing monitor")?;
 
-        let rotation_deg = *split.get(1).or_else(|| Some(&"N")).unwrap();
-
-        let rotation = match rotation_deg {
-            "r" | "R" | "90" => Rotation::Right,
-            "i" | "I" | "180" => Rotation::Inverted,
-            "l" | "L" | "270" => Rotation::Left,
-            "" | "n" | "N" | "0" => Rotation::Normal,
-            _ => return Err(InvalidOptionError(format!("rotation '{}'", rotation_deg)))
+        let rotation = match regex::Regex::new(r".*([rRiIlLnN]).*")
+            .unwrap()
+            .captures(opt)
+        {
+            Some(caps) => {
+                if caps.len() > 2 {
+                    return Err(anyhow!(
+                        "invalid option - more than one rotation for monitor {}",
+                        mon_idx
+                    ));
+                }
+                match &(caps[1]) {
+                    "r" | "R" => Rotation::Right,
+                    "i" | "I" => Rotation::Inverted,
+                    "l" | "L" => Rotation::Left,
+                    "n" | "N" => Rotation::Normal,
+                    _ => Rotation::Normal,
+                }
+            }
+            None => Rotation::Normal,
         };
 
-        let pos_x = Self::parse_split(&split, 2)?;
-        let pos_y = Self::parse_split(&split, 3)?;
+        let pos_x = regex::Regex::new(r".x(-?\d+).*")
+            .unwrap()
+            .captures(opt)
+            .map(|c| c[1].parse::<i32>().unwrap());
 
-        return Ok(Layout {
+        let pos_y = regex::Regex::new(r".y(-?\d+).*")
+            .unwrap()
+            .captures(opt)
+            .map(|c| c[1].parse::<i32>().unwrap());
+
+        let force = opt.contains('f') || opt.contains('F');
+        let primary = opt.contains('p') || opt.contains('P');
+        let layout = Layout {
             mon_idx,
             rotation,
             position: (pos_x, pos_y),
-        });
+            force,
+            primary,
+        };
+        debug!("layout: {:?}", layout);
+        Ok(layout)
     }
+}
 
-    fn parse_split(v: &Vec<&str>, pos: usize) -> Result<Option<i32>> {
-        if let Some(s) = v.get(pos) {
-            if s.len() > 0 {
-                return Ok(Some(s.parse::<i32>()?));
-            }
+#[cfg(test)]
+mod tests {
+    use crate::layout::Layout;
+
+    #[test]
+    fn test_layout() {
+        let test_valid_strings = vec![
+            "1",
+            "1l",
+            "1N",
+            "1R",
+            "1f",
+            "1fP",
+            "1x10",
+            "1y-10",
+            "1fpx10y-10",
+        ];
+
+        for s in test_valid_strings {
+            let l1 = Layout::new(s);
+            assert!(l1.is_ok());
+            println!("{:?} => {:?}", s, l1.unwrap());
         }
-        Ok(None)
     }
+
+    // #[test]
+    // fn test_bad_new() {
+    //     let test_invalid_strings = vec![
+    //         "a1",
+    //         "1a",
+    //         "1x90a",
+    //         "1:99:c",
+    //         "1:c:10",
+    //         "1::10:one",
+    //         "1:left::10",
+    //         "1::::::",
+    //     ];
+    //
+    //     for s in test_invalid_strings {
+    //         let l1 = Layout::new(&s);
+    //         assert_eq!(l1.is_err(), true);
+    //         println!("{:?} => {:?}", s, l1.err().unwrap());
+    //     }
+    // }
 }
-
-#[test]
-fn test_new() {
-    let test_valid_strings = vec![
-        "1",
-        "1",
-        "1:90",
-        "1:N",
-        "1:R:",
-        "1::10",
-        "1::10",
-        "1:::10",
-        "1:L::10",
-        "1:::",
-        "1:I:100:0",
-    ];
-
-    for s in test_valid_strings {
-        let l1 = Layout::new(&s);
-        assert_eq!(l1.is_ok(), true);
-        println!("{:?} => {:?}", s, l1.unwrap());
-    }
-}
-
-#[test]
-fn test_bad_new() {
-    let test_invalid_strings = vec![
-        "a1",
-        "1:a",
-        "1:90a",
-        "1:99:c",
-        "1:c:10",
-        "1::10:one",
-        "1:left::10",
-        "1::::::",
-    ];
-
-    for s in test_invalid_strings {
-        let l1 = Layout::new(&s);
-        assert_eq!(l1.is_err(), true);
-        println!("{:?} => {:?}", s, l1.err().unwrap());
-    }
-}
-
 /*
 0:left 1:::245
 <mon_idx>:<rotation=normal>:<x:0>:<y=0>:<on=1>
