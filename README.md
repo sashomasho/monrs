@@ -34,13 +34,13 @@ the HP on center with slight Y offset of 300 px, and the laptop one on the right
   |      +---------------+
   +------+
 
-% monrs 1:270 2::300 0
+% monrs 1L 2y300 0
 ```
 
 
 ### Arguments
 
-one of **idx**:***rotation***:***x***:***y*** per each monitor, where
+one of **idx**<***rotation***><***xPOS***><***yPOS>***<***p***><***f***> per each monitor, where
 
 * **idx** monitor index as printed from the tool itself when no arguments are provided
 
@@ -50,16 +50,20 @@ one of **idx**:***rotation***:***x***:***y*** per each monitor, where
 
 * **y** - optional, Y position of the monitor, absolute if provided, same as the offset of the left stating one if omitted
 
+* **p** - set monitor as primary, can be set to only one monitor
+
+* **f** - forced
+
 
 In the example above the full arguments, without omitting the defaults will be:
 ```
-% monrs 1:270:0:0  2:0:1080:300  0:0:3000:300
+% monrs 1Rx0y0  2Nx1080y300  0Nx3000y300
 ```
 
-If there isn't an argument for a monitor then that monitor will be turned off.
+If there isn't an argument for an attached monitor then that monitor will be turned off.
 
 ```
-# For example to switch from dual monitor setup to single display, effectively turning all others OFF:
+# For example to switch from dual monitor setup to single display, effectively turning the other OFF:
 % monrs 0
 
 ```
