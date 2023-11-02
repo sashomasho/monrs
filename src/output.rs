@@ -8,18 +8,18 @@ use crate::layout::{Layout, Rotation};
 use crate::monitors::Monitor;
 
 #[derive(Debug)]
-pub struct MonitorLayoutPair {
+pub struct MonitorSetup {
     pub monitor: Monitor,
     pub layout: Option<Layout>,
 }
 
-impl MonitorLayoutPair {
+impl MonitorSetup {
     pub fn new(monitor: Monitor, layout: Option<Layout>) -> Self {
-        MonitorLayoutPair { monitor, layout }
+        MonitorSetup { monitor, layout }
     }
 }
 
-pub fn set_screen_output(mon_layouts: &Vec<MonitorLayoutPair>) {
+pub fn set_screen_output(mon_layouts: &Vec<MonitorSetup>) {
     let all_args = build_args(mon_layouts);
     let mut is_first = true;
     for args in all_args {
@@ -53,7 +53,7 @@ pub fn set_screen_output(mon_layouts: &Vec<MonitorLayoutPair>) {
     println!("\nall set");
 }
 
-pub fn build_args(pairs: &Vec<MonitorLayoutPair>) -> Vec<Vec<String>> {
+pub fn build_args(setups: &Vec<MonitorSetup>) -> Vec<Vec<String>> {
     //layouts.sort_by_key(|l| l.mon_idx);
 
     let mut all_args = vec![];
@@ -62,7 +62,7 @@ pub fn build_args(pairs: &Vec<MonitorLayoutPair>) -> Vec<Vec<String>> {
     let mut current_pos_y = 0;
 
     let mut args = vec![];
-    for p in pairs {
+    for p in setups {
         match &p.layout {
             Some(layout) if layout.force => {
                 args.push("--output".to_string());
@@ -112,7 +112,7 @@ pub fn build_args(pairs: &Vec<MonitorLayoutPair>) -> Vec<Vec<String>> {
 #[test]
 fn test_args() {
     let mons = vec![
-        MonitorLayoutPair::new(
+        MonitorSetup::new(
             Monitor {
                 idx: 0,
                 link: "DisplayPort-1".to_string(),
@@ -128,7 +128,7 @@ fn test_args() {
                 primary: false,
             }),
         ),
-        MonitorLayoutPair::new(
+        MonitorSetup::new(
             Monitor {
                 idx: 1,
                 link: "DisplayPort-2".to_string(),

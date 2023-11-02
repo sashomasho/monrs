@@ -4,7 +4,7 @@ use std::{env, process};
 use layout::Layout;
 use log::debug;
 
-use crate::output::MonitorLayoutPair;
+use crate::output::MonitorSetup;
 
 mod layout;
 mod monitors;
@@ -37,7 +37,7 @@ fn main() {
         process::exit(0);
     }
 
-    let mut pairs: Vec<MonitorLayoutPair> = args
+    let mut setup_items: Vec<MonitorSetup> = args
         .iter()
         .filter_map(|s| match Layout::new(s) {
             Ok(layout) => Some(layout),
@@ -47,7 +47,7 @@ fn main() {
             }
         })
         .filter_map(|layout| match mon_map.remove(&layout.mon_idx) {
-            Some(mon) => Some(MonitorLayoutPair::new(mon, Some(layout))),
+            Some(mon) => Some(MonitorSetup::new(mon, Some(layout))),
             None => {
                 eprintln!(
                     "\nWarning: Monitor with index: {} not found",
@@ -58,7 +58,7 @@ fn main() {
         })
         .collect();
 
-    let primary_count = pairs.iter().fold(0, |acc, p| {
+    let primary_count = setup_items.iter().fold(0, |acc, p| {
         acc + p
             .layout
             .as_ref()
@@ -71,19 +71,19 @@ fn main() {
         process::exit(1)
     }
 
-    debug!("{:?}", pairs);
+    debug!("{:?}", setup_items);
 
-    if pairs.is_empty() {
+    if setup_items.is_empty() {
         println!("\nError: No valid arguments provided for current monitor setup");
         process::exit(2)
     }
 
     //the rest which don't have a matching layout
     for (_, mon) in mon_map {
-        pairs.push(MonitorLayoutPair::new(mon, None))
+        setup_items.push(MonitorSetup::new(mon, None))
     }
 
-    output::set_screen_output(&pairs)
+    output::set_screen_output(&setup_items)
 }
 
 fn long_help() {
